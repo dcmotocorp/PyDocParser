@@ -10,13 +10,13 @@ repo = pygit2.Repository(os.path.dirname(os.path.abspath(__file__)))
 master_branch = repo.branches['master']
 
 # Iterate over all branches
-for branch_name in repo.branches.remote:
+for branchname in repo.branches.remote:
     # Skip the master branch
-    if branch_name == 'master':
+    if branchname == 'master':
         continue
 
     # Get the branch reference
-    branch_ref = repo.branches[branch_name]
+    branch_ref = repo.branches[branchname]
 
     # Rebase the branch onto the latest changes in master
     repo.checkout(branch_ref)

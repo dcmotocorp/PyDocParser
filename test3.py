@@ -12,6 +12,7 @@ master_branch = repo.branches['master']
 # Iterate over all branches
 for branchname in repo.branches.remote:
     # Skip the master branch
+    print(branchname)
     if branchname == 'master':
         continue
 

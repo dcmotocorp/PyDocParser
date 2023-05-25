@@ -1,30 +1,30 @@
-import pygit2
-import os 
-# Set the path to the GitLab repository
+import git
+
 repo_path = '/path/to/repository'
-
+import os
 # Open the repository
-repo = pygit2.Repository(os.path.dirname(os.path.abspath(__file__)))
+repo = git.Repo(os.path.dirname(os.path.abspath(__file__)))
 
-# Get the master branch
-master_branch = repo.branches['master']
+# Fetch the latest changes from the remote repository
+repo.remotes.origin.fetch()
 
-# Iterate over all branches
-for branchname in repo.branches.remote:
+# Checkout the master branch
+repo.git.checkout('master')
+
+# Loop through all branches in the repository
+for branch in repo.branches:
     # Skip the master branch
-    print(branchname)
-    if branchname == 'master':
+    if branch.name == 'master':
         continue
 
-    # Get the branch reference
-    branch_ref = repo.branches[branchname]
+    # Checkout the branch
+    repo.git.checkout(branch.name)
 
-    # Rebase the branch onto the latest changes in master
-    repo.checkout(branch_ref)
-    rebase = repo.rebase(branch_ref.target, onto=master_branch.target)
-    rebase.finish(repo.default_signature, strategy=pygit2.GIT_REBASE_OPERATION.NONE)
+    # Rebase the branch with master
+    repo.git.rebase('master')
 
-    # Push the rebased branch to the GitLab repository
-    remote_name = 'origin'
-    remote = repo.remotes[remote_name]
-    remote.push([f'{branch_name}:{branch_name}'])
+    # Push the rebased branch to the remote repository
+    repo.git.push('--force', 'origin', branch.name)
+
+# Checkout the master branch again
+repo.git.checkout('master')

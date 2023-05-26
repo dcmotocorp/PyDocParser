@@ -1,30 +1,46 @@
 import git
 
-repo_path = '/path/to/repository'
 import os
-# Open the repository
 repo = git.Repo(os.path.dirname(os.path.abspath(__file__)))
 
-# Fetch the latest changes from the remote repository
-repo.remotes.origin.fetch()
+# repo.remotes.origin.fetch()
+# repo.git.checkout('master')
+# for branch in repo.branches:
+#     if branch.name == 'master':
+#         continue
+#     repo.git.checkout(branch.name)
+#     repo.git.rebase('master')
+#     repo.git.push('--force', 'origin', branch.name)
+# repo.git.checkout('master')
 
-# Checkout the master branch
+# import git
+
+def rebase_master_with_branch(repo, branch_name):
+    try:
+        repo.git.checkout(branch_name)
+        repo.git.rebase('master')
+        repo.git.checkout('master')
+        print(f'Rebase successful for branch: {branch_name}')
+    except git.exc.GitCommandError as e:
+        repo.git.revert('--abort')
+
+        print(f'Rebase failed for branch: {branch_name}')
+        print(f'Error: {str(e)}')
+
+
+repo.git.fetch()
 repo.git.checkout('master')
+branches = repo.git.branch('-r').split('\n')
+print("===========",branches)
+# Iterate over the branches and perform the rebase
+for branch in branches:
+    # Extract the branch name
+    branch_name = branch.strip().replace('origin/', '')
 
-# Loop through all branches in the repository
-for branch in repo.branches:
-    # Skip the master branch
-    if branch.name == 'master':
+    # Skip if it's the master branch
+    if branch_name == 'master':
         continue
 
-    # Checkout the branch
-    repo.git.checkout(branch.name)
+    # Rebase master with the branch
+    rebase_master_with_branch(repo, branch_name)
 
-    # Rebase the branch with master
-    repo.git.rebase('master')
-
-    # Push the rebased branch to the remote repository
-    repo.git.push('--force', 'origin', branch.name)
-
-# Checkout the master branch again
-repo.git.checkout('master')
